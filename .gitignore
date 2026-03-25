@@ -1,0 +1,6 @@
+ductape.egg-info/
+build/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.o

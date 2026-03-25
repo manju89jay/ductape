@@ -1,0 +1,69 @@
+project:
+  name: reference_project
+  description: "Reference project for adapter generation"
+  generic_version_sentinel: 9999
+
+preprocessor:
+  type: builtin
+
+header_sources:
+  - path: "headers/v1"
+    version_tag: "v1"
+  - path: "headers/v2"
+    version_tag: "v2"
+  - path: "headers/v3"
+    version_tag: "v3"
+
+additional_includes:
+  - "headers"
+
+types:
+  TelemetryData_t:
+    version_macro: TELEMETRY_DATA_VERSION
+    generate_reverse: true
+    defaults:
+      battery.voltage: "0.0"
+      battery.current: "0.0"
+      battery.charge_percent: "0"
+      signal_quality: "0"
+      vertical_speed: "0.0"
+      airspeed: "0.0"
+      satellite_count: "0"
+      mission_phase: "0"
+      sequence_number: "0"
+    renames:
+      speed: ground_speed
+      status: op_status
+      altitude: altitude_msl
+    field_warnings:
+      op_status:
+        note: "V1-V2 uses bitmask; V3+ uses enum. Byte copy is safe but meaning differs."
+        severity: 1
+      altitude_msl:
+        note: "Was 'altitude' in V1-V2, renamed to 'altitude_msl' in V3."
+        severity: 0
+
+  CommandMessage_t:
+    version_macro: COMMAND_MSG_VERSION
+    generate_reverse: false
+    defaults:
+      source_id: "0"
+      checksum: "0"
+    renames: {}
+    field_warnings: {}
+
+  SystemStatus_t:
+    version_macro: SYSTEM_STATUS_VERSION
+    generate_reverse: false
+    defaults:
+      task_count: "0"
+      free_heap: "0"
+      boot_count: "0"
+    renames: {}
+    field_warnings: {}
+
+handcrafted: []
+
+warnings:
+  min_display_severity: 1
+  color: true
