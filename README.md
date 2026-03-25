@@ -131,6 +131,12 @@ types:
 - **Semantic conflict detection** — warns when field types differ across versions
 - **Field provenance report** — JSON audit trail for all field mappings
 
+## Documentation
+
+- [Architecture specification](docs/architecture.md) — full spec (27 FRs, 8 NFRs)
+- [Build phases](docs/build-phases.md) — phased build plan (Phases 1-10 complete, 11-14 planned)
+- [Requirements status](docs/requirements-status.md) — tracking table for all requirements
+
 ## Development
 
 ```bash

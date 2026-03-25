@@ -145,3 +145,67 @@ ductape verify --config variants/reference_project/config.yaml --expected varian
 ```
 
 If any check fails, fix it and re-run ALL checks from the top.
+
+---
+---
+
+# Future Phases
+
+The following phases address requirements not covered by Phases 1-10.
+See [requirements-status.md](requirements-status.md) for the full tracking table.
+
+---
+
+## Phase 11: Utility features (FR-10, FR-11, FR-12, FR-13, FR-14, NFR-05)
+
+1. `ductape/dependency_extractor.py` — extract headers from C/C++ package manager packages
+   into `interfaces/<version>/<source_tag>/` (FR-10)
+2. Generate `version_overview.json` listing each interface's active version number (FR-11)
+3. `ductape/version_diff.py` — diff report when `--previous-version` supplied (FR-12)
+4. Wire `WarningModule` into converter generation: emit warnings when source fields are
+   missing, graded by severity level (FR-13)
+5. Version conflict detection in `type_registry.py`: same version number with structurally
+   different layouts raises an error (FR-14)
+6. Add `--no-color` CLI flag wired to `WarningModule.use_color` (NFR-05)
+
+**Acceptance:** `ductape extract-deps` runs. `version_overview.json` generated. Missing-field
+warnings appear during generation. Duplicate version number with different layout raises error.
+
+---
+
+## Phase 12: Pluggable architecture (FR-22, FR-25)
+
+1. `ductape/frontends/frontend_base.py` — abstract `ParserFrontend` interface
+2. `ductape/frontends/c_header.py` — wrap existing `conv/parser.py` as a frontend plugin
+3. `ductape/emitters/emitter_base.py` — abstract `CodeEmitter` interface
+4. `ductape/emitters/cpp_emitter.py` — wrap existing C++ generation as an emitter plugin
+5. Config: `format: c_header` (default) selects parser; `emitter: cpp` (default) selects emitter
+
+**Acceptance:** Existing behaviour unchanged. New frontends/emitters can be added without
+modifying core engine. Tests verify plugin discovery and delegation.
+
+---
+
+## Phase 13: Additional format support (FR-23, FR-24)
+
+1. `ductape/frontends/protobuf.py` — parse `.proto` files (`message`, `enum`, `oneof`, `map`)
+   into `TypeContainer`. Track field numbers for compatibility analysis. (FR-23)
+2. `ductape/frontends/json_schema.py` — parse JSON Schema (`object`, `array`, `$ref`, `enum`)
+   into `TypeContainer`. (FR-24)
+3. `variants/reference_multi_format/` — reference project with Protobuf + C inputs
+
+**Acceptance:** Protobuf and JSON Schema files parse into TypeContainer. End-to-end generation
+works for mixed-format projects.
+
+---
+
+## Phase 14: Advanced emitters + two-stage pipelines (FR-26, FR-27)
+
+1. `ductape/emitters/shared_lib_emitter.py` — emit `.so/.dll` with stable C ABI, export
+   `GetConverterVersion()` symbol for runtime version negotiation. (FR-26)
+2. Two-stage adaptation pipeline: Stage 1 normalizes within a format family, Stage 2
+   normalizes across formats. Both configured in a single YAML file. (FR-27)
+3. `ductape diff` subcommand for structural diff between generated outputs
+
+**Acceptance:** Shared library compiles and exports expected symbols. Two-stage pipeline
+produces correct cross-format converters.
