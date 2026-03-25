@@ -6,11 +6,8 @@ C++ converter code using a hub-and-spoke pattern. Config-driven: YAML in,
 compilable C++ out. Zero manual converter code.
 
 ## Architecture reference
-Read `ARCHITECTURE_FINAL_v3.md` for the full specification (27 FRs, 16 sections).
+Read `docs/architecture.md` for the full specification (27 FRs, 16 sections).
 Read `docs/build-phases.md` for the phased build plan.
-
-IMPORTANT: When starting any new phase, ALWAYS re-read `docs/build-phases.md`
-to check which phase you're on and what the acceptance criteria are.
 
 ## Tech stack
 - Python 3.10+, no deps beyond PyYAML and pytest
@@ -63,7 +60,7 @@ pip install -e .                    # Install in dev mode
 pytest tests/ -v                    # Run all tests
 ductape generate --config variants/reference_project/config.yaml --output build/
 ductape verify --config variants/reference_project/config.yaml --expected variants/reference_project/expected_output/
-g++ -c build/converters/generated/*.cpp -Ibuild/data_types -Iruntime_reference -std=c++17
+g++ -c build/converters/generated/*.cpp -Ibuild -Iruntime_reference -Ibuild/converters/generated -std=c++17
 ```
 
 ## Code style
@@ -74,8 +71,7 @@ g++ -c build/converters/generated/*.cpp -Ibuild/data_types -Iruntime_reference -
 - Use dataclasses where appropriate in Python
 
 ## IMPORTANT rules
-- Build iteratively: get each phase working before starting the next
-- Run tests after every phase — if a test fails, fix it before proceeding
 - The hub-and-spoke pattern: every version converts to/from a generic hub version
 - Generic version uses sentinel 9999 in C++, tagged GenericVersion type in Python
-- When compacting, ALWAYS preserve: current phase number, which tests pass, which files exist
+- Run tests after every change — if a test fails, fix it before proceeding
+- Generated C++ must compile with g++ -std=c++17
