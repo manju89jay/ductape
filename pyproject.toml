@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ductape"
+version = "0.1.0"
+description = "Universal Schema Adapter Generator"
+requires-python = ">=3.10"
+dependencies = ["pyyaml"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+ductape = "ductape.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ductape*"]

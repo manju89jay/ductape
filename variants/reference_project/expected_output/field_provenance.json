@@ -1,0 +1,544 @@
+{
+  "TelemetryData_t": {
+    "timestamp": {
+      "generic_type": "uint32",
+      "versions": {
+        "1": {
+          "type": "uint32",
+          "field_name": "timestamp"
+        },
+        "2": {
+          "type": "uint32",
+          "field_name": "timestamp"
+        },
+        "3": {
+          "type": "uint32",
+          "field_name": "timestamp"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "ground_speed": {
+      "generic_type": "float32",
+      "versions": {
+        "1": {
+          "type": "float32",
+          "field_name": "speed",
+          "rename_from": "speed"
+        },
+        "2": {
+          "type": "float32",
+          "field_name": "speed",
+          "rename_from": "speed"
+        },
+        "3": {
+          "type": "float32",
+          "field_name": "ground_speed"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "altitude_msl": {
+      "generic_type": "float32",
+      "versions": {
+        "1": {
+          "type": "float32",
+          "field_name": "altitude",
+          "rename_from": "altitude"
+        },
+        "2": {
+          "type": "float32",
+          "field_name": "altitude",
+          "rename_from": "altitude"
+        },
+        "3": {
+          "type": "float32",
+          "field_name": "altitude_msl"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [
+        {
+          "severity": 0,
+          "note": "Was 'altitude' in V1-V2, renamed to 'altitude_msl' in V3."
+        }
+      ]
+    },
+    "heading": {
+      "generic_type": "float32",
+      "versions": {
+        "1": {
+          "type": "float32",
+          "field_name": "heading"
+        },
+        "2": {
+          "type": "float32",
+          "field_name": "heading"
+        },
+        "3": {
+          "type": "float32",
+          "field_name": "heading"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "latitude": {
+      "generic_type": "float32",
+      "versions": {
+        "1": {
+          "type": "float32",
+          "field_name": "latitude"
+        },
+        "2": {
+          "type": "float32",
+          "field_name": "latitude"
+        },
+        "3": {
+          "type": "float32",
+          "field_name": "latitude"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "longitude": {
+      "generic_type": "float32",
+      "versions": {
+        "1": {
+          "type": "float32",
+          "field_name": "longitude"
+        },
+        "2": {
+          "type": "float32",
+          "field_name": "longitude"
+        },
+        "3": {
+          "type": "float32",
+          "field_name": "longitude"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "op_status": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": {
+          "type": "uint8",
+          "field_name": "status",
+          "rename_from": "status"
+        },
+        "2": {
+          "type": "uint8",
+          "field_name": "status",
+          "rename_from": "status"
+        },
+        "3": {
+          "type": "uint8",
+          "field_name": "op_status"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [
+        {
+          "severity": 1,
+          "note": "V1-V2 uses bitmask; V3+ uses enum. Byte copy is safe but meaning differs."
+        }
+      ]
+    },
+    "payload": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": {
+          "type": "uint8",
+          "field_name": "payload"
+        },
+        "2": {
+          "type": "uint8",
+          "field_name": "payload"
+        },
+        "3": {
+          "type": "uint8",
+          "field_name": "payload"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "vertical_speed": {
+      "generic_type": "float32",
+      "versions": {
+        "1": null,
+        "2": {
+          "type": "float32",
+          "field_name": "vertical_speed"
+        },
+        "3": {
+          "type": "float32",
+          "field_name": "vertical_speed"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1
+      ]
+    },
+    "signal_quality": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": null,
+        "2": {
+          "type": "uint8",
+          "field_name": "signal_quality"
+        },
+        "3": {
+          "type": "uint8",
+          "field_name": "signal_quality"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1
+      ]
+    },
+    "battery": {
+      "generic_type": "BatteryInfo_t",
+      "versions": {
+        "1": null,
+        "2": {
+          "type": "BatteryInfo_t",
+          "field_name": "battery"
+        },
+        "3": {
+          "type": "BatteryInfo_t",
+          "field_name": "battery"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1
+      ]
+    },
+    "airspeed": {
+      "generic_type": "float32",
+      "versions": {
+        "1": null,
+        "2": null,
+        "3": {
+          "type": "float32",
+          "field_name": "airspeed"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1,
+        2
+      ]
+    },
+    "satellite_count": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": null,
+        "2": null,
+        "3": {
+          "type": "uint8",
+          "field_name": "satellite_count"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1,
+        2
+      ]
+    },
+    "mission_phase": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": null,
+        "2": null,
+        "3": {
+          "type": "uint8",
+          "field_name": "mission_phase"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1,
+        2
+      ]
+    },
+    "sequence_number": {
+      "generic_type": "uint32",
+      "versions": {
+        "1": null,
+        "2": null,
+        "3": {
+          "type": "uint32",
+          "field_name": "sequence_number"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1,
+        2
+      ]
+    }
+  },
+  "CommandMessage_t": {
+    "command_id": {
+      "generic_type": "uint32",
+      "versions": {
+        "1": {
+          "type": "uint32",
+          "field_name": "command_id"
+        },
+        "2": {
+          "type": "uint32",
+          "field_name": "command_id"
+        },
+        "3": {
+          "type": "uint32",
+          "field_name": "command_id"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "timestamp": {
+      "generic_type": "uint32",
+      "versions": {
+        "1": {
+          "type": "uint32",
+          "field_name": "timestamp"
+        },
+        "2": {
+          "type": "uint32",
+          "field_name": "timestamp"
+        },
+        "3": {
+          "type": "uint32",
+          "field_name": "timestamp"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "priority": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": {
+          "type": "uint8",
+          "field_name": "priority"
+        },
+        "2": {
+          "type": "uint8",
+          "field_name": "priority"
+        },
+        "3": {
+          "type": "uint8",
+          "field_name": "priority"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "params": {
+      "generic_type": "float32",
+      "versions": {
+        "1": {
+          "type": "float32",
+          "field_name": "params"
+        },
+        "2": {
+          "type": "float32",
+          "field_name": "params"
+        },
+        "3": {
+          "type": "float32",
+          "field_name": "params"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "source_id": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": null,
+        "2": {
+          "type": "uint8",
+          "field_name": "source_id"
+        },
+        "3": {
+          "type": "uint8",
+          "field_name": "source_id"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1
+      ]
+    },
+    "checksum": {
+      "generic_type": "uint32",
+      "versions": {
+        "1": null,
+        "2": null,
+        "3": {
+          "type": "uint32",
+          "field_name": "checksum"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1,
+        2
+      ]
+    }
+  },
+  "SystemStatus_t": {
+    "uptime_seconds": {
+      "generic_type": "uint32",
+      "versions": {
+        "1": {
+          "type": "uint32",
+          "field_name": "uptime_seconds"
+        },
+        "2": {
+          "type": "uint32",
+          "field_name": "uptime_seconds"
+        },
+        "3": {
+          "type": "uint32",
+          "field_name": "uptime_seconds"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "cpu_load": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": {
+          "type": "uint8",
+          "field_name": "cpu_load"
+        },
+        "2": {
+          "type": "uint8",
+          "field_name": "cpu_load"
+        },
+        "3": {
+          "type": "uint8",
+          "field_name": "cpu_load"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "memory_usage": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": {
+          "type": "uint8",
+          "field_name": "memory_usage"
+        },
+        "2": {
+          "type": "uint8",
+          "field_name": "memory_usage"
+        },
+        "3": {
+          "type": "uint8",
+          "field_name": "memory_usage"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "error_count": {
+      "generic_type": "uint8",
+      "versions": {
+        "1": {
+          "type": "uint8",
+          "field_name": "error_count"
+        },
+        "2": {
+          "type": "uint8",
+          "field_name": "error_count"
+        },
+        "3": {
+          "type": "uint8",
+          "field_name": "error_count"
+        }
+      },
+      "type_compatible": true,
+      "warnings": []
+    },
+    "task_count": {
+      "generic_type": "uint16",
+      "versions": {
+        "1": null,
+        "2": {
+          "type": "uint16",
+          "field_name": "task_count"
+        },
+        "3": {
+          "type": "uint16",
+          "field_name": "task_count"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1
+      ]
+    },
+    "free_heap": {
+      "generic_type": "uint32",
+      "versions": {
+        "1": null,
+        "2": {
+          "type": "uint32",
+          "field_name": "free_heap"
+        },
+        "3": {
+          "type": "uint32",
+          "field_name": "free_heap"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1
+      ]
+    },
+    "boot_count": {
+      "generic_type": "uint32",
+      "versions": {
+        "1": null,
+        "2": null,
+        "3": {
+          "type": "uint32",
+          "field_name": "boot_count"
+        }
+      },
+      "type_compatible": true,
+      "warnings": [],
+      "default_applied_for": [
+        1,
+        2
+      ]
+    }
+  }
+}
