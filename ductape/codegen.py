@@ -8,6 +8,10 @@ from ductape.conv.code_writer import CodeWriter
 from ductape.conv.converter import Converter
 from ductape.warnings import WarningModule
 
+# Import frontends and emitters to trigger registration
+import ductape.frontends.c_header  # noqa: F401
+import ductape.emitters.cpp_emitter  # noqa: F401
+
 
 def run_generate(config_path, output_dir, use_color=True):
     """Run the full generation pipeline."""
@@ -26,16 +30,26 @@ def run_generate(config_path, output_dir, use_color=True):
 
     os.makedirs(output_dir, exist_ok=True)
 
-    # Generate data type headers
-    for type_name, dt in registry.data_types.items():
-        _generate_data_type_header(dt, sentinel, output_dir, registry)
+    # Select emitter based on config (FR-25), default to cpp
+    emitter_id = config.get('emitter', 'cpp')
+    emitter = _get_emitter(emitter_id)
 
-    # Generate converter files
-    for type_name, dt in registry.data_types.items():
-        _generate_converter(dt, config, output_dir, warning_module)
-
-    # Generate factory file
-    _generate_factory(registry.data_types, output_dir)
+    if emitter:
+        # Use pluggable emitter
+        for type_name, dt in registry.data_types.items():
+            emitter.emit_type_header(dt, output_dir, registry=registry)
+        for type_name, dt in registry.data_types.items():
+            emitter.emit_converter(dt, config, output_dir, warning_module=warning_module)
+        emitter.emit_factory(registry.data_types, output_dir)
+        emitter.emit_platform_types(config, output_dir)
+    else:
+        # Fallback to built-in generation
+        for type_name, dt in registry.data_types.items():
+            _generate_data_type_header(dt, sentinel, output_dir, registry)
+        for type_name, dt in registry.data_types.items():
+            _generate_converter(dt, config, output_dir, warning_module)
+        _generate_factory(registry.data_types, output_dir)
+        _copy_platform_types(config, output_dir)
 
     # Generate field provenance
     _generate_field_provenance(registry, output_dir)
@@ -43,14 +57,20 @@ def run_generate(config_path, output_dir, use_color=True):
     # Generate version overview (FR-11)
     _generate_version_overview(registry, output_dir)
 
-    # Copy platform_types.h to output
-    _copy_platform_types(config, output_dir)
-
     # Display warnings (FR-13)
     if warning_module.count() > 0:
         warning_module.display()
 
     print(f"Generation complete. Output in {output_dir}")
+
+
+def _get_emitter(emitter_id):
+    """Get emitter by ID, returning None if not found (falls back to built-in)."""
+    from ductape.emitters.emitter_base import get_emitter
+    try:
+        return get_emitter(emitter_id)
+    except ValueError:
+        return None
 
 
 def _generate_data_type_header(dt, sentinel, output_dir, registry):

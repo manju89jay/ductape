@@ -3,7 +3,7 @@
 Tracking document for all functional (FR) and non-functional (NFR) requirements
 from the [architecture specification](architecture.md).
 
-Last updated: 2026-03-27
+Last updated: 2026-03-27 (Phase 12 complete)
 
 ---
 
@@ -40,14 +40,19 @@ Last updated: 2026-03-27
 | FR-13 | Warn (not fail) on missing source fields with severity | **MET** | `WarningModule` wired into `converter.py`; severity-graded warnings emitted during generation |
 | FR-14 | Detect version conflicts (same version#, different layout) | **MET** | `VersionConflictError` in `type_registry.py` |
 
-### Pluggable Architecture — NOT YET IMPLEMENTED
+### Pluggable Architecture (Phase 12) — FR-22, FR-25 COMPLETE
+
+| ID | Requirement | Status | Implementation |
+|----|-------------|--------|----------------|
+| FR-22 | Pluggable parser frontends | **MET** | `frontends/frontend_base.py` (ABC), `frontends/c_header.py` (registered plugin) |
+| FR-25 | Pluggable code emitter backends | **MET** | `emitters/emitter_base.py` (ABC), `emitters/cpp_emitter.py` (registered plugin) |
+
+### Additional Formats & Advanced — NOT YET IMPLEMENTED
 
 | ID | Requirement | Status | Planned Phase |
 |----|-------------|--------|---------------|
-| FR-22 | Pluggable parser frontends | **NOT MET** | Phase 12 |
 | FR-23 | Protobuf `.proto` parsing | **NOT MET** | Phase 13 |
 | FR-24 | JSON Schema parsing | **NOT MET** | Phase 13 |
-| FR-25 | Pluggable code emitter backends | **NOT MET** | Phase 12 |
 | FR-26 | Shared library `.so/.dll` emitter | **NOT MET** | Phase 14 |
 | FR-27 | Two-stage adaptation pipelines | **NOT MET** | Phase 14 |
 
@@ -74,19 +79,13 @@ Last updated: 2026-03-27
 |----------|-----|---------|---------|-------|
 | FR (Core Engine) | 16 | 0 | 0 | 16 |
 | FR (Utility) | 5 | 0 | 0 | 5 |
-| FR (Pluggable) | 0 | 0 | 6 | 6 |
+| FR (Pluggable) | 2 | 0 | 4 | 6 |
 | NFR | 8 | 0 | 0 | 8 |
-| **Total** | **29** | **0** | **6** | **35** |
+| **Total** | **31** | **0** | **4** | **35** |
 
 ---
 
 ## Planned Future Phases
-
-### Phase 12: Pluggable architecture (FR-22, FR-25)
-- `frontends/frontend_base.py` — abstract `ParserFrontend` interface
-- `frontends/c_header.py` — wrap existing parser as a frontend
-- `emitters/emitter_base.py` — abstract `CodeEmitter` interface
-- `emitters/cpp_emitter.py` — wrap existing C++ generation as an emitter
 
 ### Phase 13: Additional format support (FR-23, FR-24)
 - `frontends/protobuf.py` — Protobuf `.proto` parser -> TypeContainer
