@@ -40,6 +40,7 @@ def load_config(config_path):
         type_cfg.setdefault('defaults', {})
         type_cfg.setdefault('renames', {})
         type_cfg.setdefault('field_warnings', {})
+        type_cfg.setdefault('enum_mappings', {})
         type_cfg.setdefault('generate_reverse', False)
 
     # Resolve paths relative to config file
