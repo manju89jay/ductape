@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+message SensorReading {
+  uint32 timestamp = 1;
+  float latitude = 2;
+  float longitude = 3;
+  float speed = 4;
+  float altitude_m = 5;
+  uint32 sensor_id = 6;
+}
+
+enum SensorStatus {
+  UNKNOWN = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+  ERROR = 3;
+}
