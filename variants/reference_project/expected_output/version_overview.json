@@ -1,0 +1,29 @@
+{
+  "CommandMessage_t": {
+    "versions": [
+      1,
+      2,
+      3
+    ],
+    "latest_version": 3,
+    "version_count": 3
+  },
+  "SystemStatus_t": {
+    "versions": [
+      1,
+      2,
+      3
+    ],
+    "latest_version": 3,
+    "version_count": 3
+  },
+  "TelemetryData_t": {
+    "versions": [
+      1,
+      2,
+      3
+    ],
+    "latest_version": 3,
+    "version_count": 3
+  }
+}

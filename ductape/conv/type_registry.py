@@ -4,6 +4,11 @@ from ductape.conv.data_type import DataType
 from ductape.conv.interface_version import InterfaceVersion
 
 
+class VersionConflictError(Exception):
+    """Raised when the same version number has structurally different layouts (FR-14)."""
+    pass
+
+
 class TypeRegistry:
     """Collects all types from all versions and builds generics."""
 
@@ -30,6 +35,7 @@ class TypeRegistry:
                 defaults=type_cfg.get('defaults', {}),
                 renames=type_cfg.get('renames', {}),
                 field_warnings=type_cfg.get('field_warnings', {}),
+                enum_mappings=type_cfg.get('enum_mappings', {}),
                 generate_reverse=type_cfg.get('generate_reverse', False),
             )
             self.data_types[type_name] = dt
@@ -45,11 +51,18 @@ class TypeRegistry:
             iv.parse(version_macros)
             self.interface_versions.append(iv)
 
-            # Register types found
+            # Register types found, with version conflict detection (FR-14)
             for type_name, dt in self.data_types.items():
                 if type_name in iv.container.types and type_name in iv.version_numbers:
                     ver_num = iv.version_numbers[type_name]
-                    dt.add_version(ver_num, iv.container.types[type_name])
+                    new_ctype = iv.container.types[type_name]
+                    if ver_num in dt.versions:
+                        self._check_version_conflict(
+                            type_name, ver_num,
+                            dt.versions[ver_num].ctype, new_ctype,
+                        )
+                    else:
+                        dt.add_version(ver_num, new_ctype)
 
         # Build generics
         sentinel = self.config['project'].get('generic_version_sentinel', 9999)
@@ -58,6 +71,23 @@ class TypeRegistry:
 
         # Run semantic checks
         self._check_field_compatibility()
+
+    def _check_version_conflict(self, type_name, version, existing_ctype, new_ctype):
+        """Detect version conflicts: same version number, different layout (FR-14)."""
+        if len(existing_ctype.members) != len(new_ctype.members):
+            raise VersionConflictError(
+                f"Version conflict for '{type_name}' version {version}: "
+                f"different number of members "
+                f"({len(existing_ctype.members)} vs {len(new_ctype.members)})"
+            )
+        for old_m, new_m in zip(existing_ctype.members, new_ctype.members):
+            if (old_m.name != new_m.name
+                    or old_m.type_name != new_m.type_name
+                    or old_m.dimensions != new_m.dimensions):
+                raise VersionConflictError(
+                    f"Version conflict for '{type_name}' version {version}: "
+                    f"structural mismatch at field '{old_m.name}' vs '{new_m.name}'"
+                )
 
     def _check_field_compatibility(self):
         """Check field type compatibility across versions (FR-20)."""

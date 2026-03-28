@@ -30,6 +30,8 @@ def load_config(config_path):
     data.setdefault('additional_includes', [])
     data.setdefault('warnings', {'min_display_severity': 1, 'color': True})
     data.setdefault('preprocessor', {'type': 'builtin'})
+    data.setdefault('format', 'c_header')  # Parser frontend (FR-22)
+    data.setdefault('emitter', 'cpp')       # Code emitter (FR-25)
     data['project'].setdefault('generic_version_sentinel', 9999)
     data['project'].setdefault('description', '')
 
@@ -38,6 +40,7 @@ def load_config(config_path):
         type_cfg.setdefault('defaults', {})
         type_cfg.setdefault('renames', {})
         type_cfg.setdefault('field_warnings', {})
+        type_cfg.setdefault('enum_mappings', {})
         type_cfg.setdefault('generate_reverse', False)
 
     # Resolve paths relative to config file

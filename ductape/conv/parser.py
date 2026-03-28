@@ -41,8 +41,12 @@ class Parser:
                 self._parse_typedef()
             elif tok.type == TokenType.Symbol and tok.value == 'struct':
                 self._parse_cpp_struct()
+            elif tok.type == TokenType.Symbol and tok.value == 'union':
+                self._parse_cpp_union()
             elif tok.type == TokenType.Symbol and tok.value == 'enum':
                 self._parse_cpp_enum()
+            elif tok.type == TokenType.Symbol and tok.value == '__attribute__':
+                self._skip_attribute()
             elif tok.type == TokenType.Special and tok.value == ';':
                 self.tokenizer.next()  # skip stray semicolons
             else:
@@ -55,6 +59,8 @@ class Parser:
 
         if tok.type == TokenType.Symbol and tok.value == 'struct':
             self._parse_typedef_struct()
+        elif tok.type == TokenType.Symbol and tok.value == 'union':
+            self._parse_typedef_union()
         elif tok.type == TokenType.Symbol and tok.value == 'enum':
             self._parse_typedef_enum()
         else:
@@ -88,6 +94,11 @@ class Parser:
             self.tokenizer.match(TokenType.Special, ';')
             return
 
+        # Skip __attribute__ between closing brace and typedef name
+        if (self.tokenizer.peek().type == TokenType.Symbol and
+                self.tokenizer.peek().value == '__attribute__'):
+            self._skip_attribute()
+
         # Get the typedef name
         name_tok = self.tokenizer.expect(TokenType.Symbol)
         name = name_tok.value
@@ -119,6 +130,10 @@ class Parser:
         if tok.type == TokenType.Symbol and tok.value == 'struct':
             return self._parse_nested_struct_member()
 
+        # Handle nested union (treat members like struct)
+        if tok.type == TokenType.Symbol and tok.value == 'union':
+            return self._parse_nested_union_member()
+
         # Handle nested enum
         if tok.type == TokenType.Symbol and tok.value == 'enum':
             self.tokenizer.next()
@@ -129,10 +144,23 @@ class Parser:
             self.tokenizer.match(TokenType.Special, ';')
             return CTypeMember(name=name, type_name='int', is_enum=True)
 
+        # Skip __attribute__((...))
+        if tok.type == TokenType.Symbol and tok.value == '__attribute__':
+            self._skip_attribute()
+
         # Skip qualifiers
         while (self.tokenizer.peek().type == TokenType.Symbol and
-               self.tokenizer.peek().value in ('const', 'volatile', 'unsigned', 'signed', 'long')):
+               self.tokenizer.peek().value in (
+                   'const', 'volatile', 'unsigned', 'signed', 'long',
+                   'static', 'restrict', 'register', 'inline',
+                   '__restrict', '__inline', '__volatile',
+               )):
             self.tokenizer.next()
+
+        # Skip __attribute__ after qualifiers
+        if (self.tokenizer.peek().type == TokenType.Symbol and
+                self.tokenizer.peek().value == '__attribute__'):
+            self._skip_attribute()
 
         # Read type name
         if self.tokenizer.peek().type != TokenType.Symbol:
@@ -343,6 +371,95 @@ class Parser:
             self.tokenizer.expect(TokenType.Special, ';')
             ctype = CType(name=name, is_enum=True, enum_values=enum_values)
             self.container.add_type(name, ctype)
+
+    def _parse_typedef_union(self):
+        """Parse: typedef union { ... } Name;"""
+        self.tokenizer.expect(TokenType.Symbol, 'union')
+        tok = self.tokenizer.peek()
+
+        # Optional tag name
+        tag_name = None
+        if tok.type == TokenType.Symbol and tok.value != '{':
+            saved = self.tokenizer._index
+            tag_tok = self.tokenizer.next()
+            if self.tokenizer.peek().type == TokenType.Special and self.tokenizer.peek().value == '{':
+                tag_name = tag_tok.value
+            else:
+                self.tokenizer._index = saved
+
+        if self.tokenizer.peek().type == TokenType.Special and self.tokenizer.peek().value == '{':
+            members = self._parse_struct_body()
+        else:
+            name = self.tokenizer.next().value
+            self.tokenizer.match(TokenType.Special, ';')
+            return
+
+        name_tok = self.tokenizer.expect(TokenType.Symbol)
+        name = name_tok.value
+        self.tokenizer.expect(TokenType.Special, ';')
+
+        ctype = CType(name=name, is_union=True, members=members)
+        self.container.add_type(name, ctype)
+
+    def _parse_cpp_union(self):
+        """Parse: union Name { ... };"""
+        self.tokenizer.expect(TokenType.Symbol, 'union')
+        name_tok = self.tokenizer.expect(TokenType.Symbol)
+        name = name_tok.value
+
+        if self.tokenizer.peek().type == TokenType.Special and self.tokenizer.peek().value == ';':
+            self.tokenizer.next()  # Forward declaration
+            return
+
+        if self.tokenizer.peek().type == TokenType.Special and self.tokenizer.peek().value == '{':
+            members = self._parse_struct_body()
+            self.tokenizer.expect(TokenType.Special, ';')
+            ctype = CType(name=name, is_union=True, members=members)
+            self.container.add_type(name, ctype)
+
+    def _parse_nested_union_member(self):
+        """Parse a union member inside a struct."""
+        self.tokenizer.expect(TokenType.Symbol, 'union')
+
+        if self.tokenizer.peek().type == TokenType.Symbol:
+            saved = self.tokenizer._index
+            tag_tok = self.tokenizer.next()
+            if self.tokenizer.peek().type == TokenType.Special and self.tokenizer.peek().value == '{':
+                pass  # Tagged inline union
+            elif self.tokenizer.peek().type == TokenType.Symbol:
+                # union TypeName member_name;
+                type_name = tag_tok.value
+                member_name = self.tokenizer.next().value
+                self.tokenizer.match(TokenType.Special, ';')
+                return CTypeMember(name=member_name, type_name=type_name, is_struct=True)
+            else:
+                self.tokenizer._index = saved
+
+        if self.tokenizer.peek().type == TokenType.Special and self.tokenizer.peek().value == '{':
+            members = self._parse_struct_body()
+            if self.tokenizer.peek().type == TokenType.Symbol:
+                member_name = self.tokenizer.next().value
+                self.tokenizer.match(TokenType.Special, ';')
+                return CTypeMember(name=member_name, type_name='union', is_struct=True)
+            self.tokenizer.match(TokenType.Special, ';')
+            return None
+        return None
+
+    def _skip_attribute(self):
+        """Skip __attribute__((...)) declarations."""
+        if self.tokenizer.peek().type == TokenType.Symbol and self.tokenizer.peek().value == '__attribute__':
+            self.tokenizer.next()  # __attribute__
+        # Skip balanced parentheses
+        if self.tokenizer.peek().type == TokenType.Special and self.tokenizer.peek().value == '(':
+            depth = 0
+            while not self.tokenizer.at_end():
+                tok = self.tokenizer.next()
+                if tok.type == TokenType.Special and tok.value == '(':
+                    depth += 1
+                elif tok.type == TokenType.Special and tok.value == ')':
+                    depth -= 1
+                    if depth == 0:
+                        break
 
     def _read_until(self, *stop_chars):
         """Read tokens until a stop character, returning concatenated text."""

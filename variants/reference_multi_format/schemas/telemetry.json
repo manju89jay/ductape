@@ -1,0 +1,30 @@
+{
+  "title": "TelemetryPacket",
+  "type": "object",
+  "properties": {
+    "timestamp": { "type": "integer" },
+    "position": {
+      "$ref": "#/definitions/GeoPosition"
+    },
+    "velocity": { "type": "number" },
+    "status": {
+      "type": "string",
+      "enum": ["active", "standby", "error"]
+    },
+    "readings": {
+      "type": "array",
+      "items": { "type": "number" },
+      "maxItems": 16
+    }
+  },
+  "definitions": {
+    "GeoPosition": {
+      "type": "object",
+      "properties": {
+        "lat": { "type": "number" },
+        "lon": { "type": "number" },
+        "alt_msl": { "type": "number" }
+      }
+    }
+  }
+}
