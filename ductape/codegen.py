@@ -10,7 +10,10 @@ from ductape.warnings import WarningModule
 
 # Import frontends and emitters to trigger registration
 import ductape.frontends.c_header  # noqa: F401
+import ductape.frontends.protobuf  # noqa: F401
+import ductape.frontends.json_schema  # noqa: F401
 import ductape.emitters.cpp_emitter  # noqa: F401
+import ductape.emitters.shared_lib_emitter  # noqa: F401
 
 
 def run_generate(config_path, output_dir, use_color=True):
