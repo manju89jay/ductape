@@ -123,8 +123,18 @@ class Converter:
             # Struct copy via memcpy (types are in different namespaces)
             writer.line(f"memcpy(&dest.{dst_name}, &source.{src_name}, sizeof(dest.{dst_name}));")
         else:
-            # Simple field copy
-            writer.line(f"dest.{dst_name} = source.{src_name};")
+            # Check for enum value remapping
+            enum_map = self.data_type.enum_mappings.get(dst_name, {})
+            if enum_map:
+                writer.line(f"switch (source.{src_name})")
+                writer.block_open()
+                for old_val, new_val in enum_map.items():
+                    writer.line(f"case {old_val}: dest.{dst_name} = {new_val}; break;")
+                writer.line(f"default: dest.{dst_name} = source.{src_name}; break;")
+                writer.block_close()
+            else:
+                # Simple field copy
+                writer.line(f"dest.{dst_name} = source.{src_name};")
 
     def _emit_missing_field_warning(self, field_name, src_dtv, has_default):
         """Emit a warning when a source field is missing during conversion (FR-13)."""

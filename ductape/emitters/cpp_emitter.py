@@ -97,6 +97,57 @@ class CppEmitter(CodeEmitter):
                     f.write(content)
                 break
 
+    def emit_version_negotiation(self, data_types, output_dir):
+        """Emit version_negotiation.h with runtime version query helpers."""
+        w = CodeWriter()
+        w.line("#pragma once")
+        w.line("#include <cstdint>")
+        w.line("#include <vector>")
+        w.line("#include <algorithm>")
+        w.line()
+        w.block_open("namespace ductape")
+        w.line()
+
+        for name in sorted(data_types.keys()):
+            dt = data_types[name]
+            versions = sorted(dt.versions.keys())
+            w.line(f"/* Version info for {name} */")
+            w.line(f"inline std::vector<uint32_t> {name}_GetSupportedVersions()")
+            w.block_open()
+            v_list = ", ".join(str(v) for v in versions)
+            w.line(f"return {{ {v_list} }};")
+            w.block_close()
+            w.line()
+            w.line(f"inline uint32_t {name}_GetLatestVersion()")
+            w.block_open()
+            w.line(f"return {versions[-1] if versions else 0};")
+            w.block_close()
+            w.line()
+
+        w.line("/* Find best common version between two version sets */")
+        w.line("inline uint32_t NegotiateBestVersion(")
+        w.indent()
+        w.line("const std::vector<uint32_t>& local_versions,")
+        w.line("const std::vector<uint32_t>& remote_versions)")
+        w.dedent()
+        w.block_open()
+        w.line("uint32_t best = 0;")
+        w.line("for (auto v : local_versions)")
+        w.block_open()
+        w.line("if (std::find(remote_versions.begin(), remote_versions.end(), v) != remote_versions.end())")
+        w.indent()
+        w.line("if (v > best) best = v;")
+        w.dedent()
+        w.block_close()
+        w.line("return best;")
+        w.block_close()
+        w.line()
+
+        w.block_close(" // namespace ductape")
+
+        filepath = os.path.join(output_dir, "converters", "generated", "version_negotiation.h")
+        w.write_to(filepath)
+
     # ── Private helpers ────────────────────────────────────────────
 
     def _emit_version_namespace(self, w, dt, dtv, version, registry):

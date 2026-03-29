@@ -20,6 +20,7 @@ class DataType:
     defaults: dict = field(default_factory=dict)
     renames: dict = field(default_factory=dict)  # old_name -> new_name
     field_warnings: dict = field(default_factory=dict)
+    enum_mappings: dict = field(default_factory=dict)  # field_name -> {old_val: new_val}
     generate_reverse: bool = False
     generic: Optional[DataTypeVersion] = None
 

@@ -9,6 +9,7 @@ from typing import Optional
 class CType:
     name: str
     is_struct: bool = False
+    is_union: bool = False
     is_enum: bool = False
     is_basic_type: bool = False
     is_array: bool = False
