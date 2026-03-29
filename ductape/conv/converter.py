@@ -6,12 +6,13 @@ from ductape.conv.code_writer import CodeWriter
 class Converter:
     """Generates C++ conversion function bodies between struct versions."""
 
-    def __init__(self, data_type, config):
+    def __init__(self, data_type, config, warning_module=None):
         self.data_type = data_type
         self.config = config
         self.renames = data_type.renames  # old_name -> new_name
         self.reverse_renames = {v: k for k, v in self.renames.items()}
         self.defaults = data_type.defaults
+        self.warning_module = warning_module
 
     def are_structurally_identical(self, src_dtv, dst_dtv):
         """Check if two versions are structurally identical (FR-08)."""
@@ -46,7 +47,7 @@ class Converter:
                                           dst_member, src_dtv, generic)
             else:
                 # Field doesn't exist in source - apply default if available
-                self._generate_default(writer, dst_name, dst_member)
+                self._generate_default(writer, dst_name, dst_member, src_dtv=src_dtv)
 
     def generate_reverse_body(self, dst_dtv, writer):
         """Generate Generic -> V_N conversion body."""
@@ -72,7 +73,7 @@ class Converter:
                 self._generate_field_copy(writer, generic_name, dst_name,
                                           dst_member, generic, dst_dtv)
             else:
-                self._generate_default(writer, dst_name, dst_member)
+                self._generate_default(writer, dst_name, dst_member, src_dtv=dst_dtv)
 
     def _find_src_field(self, dst_name, src_dtv):
         """Find the source field name for a destination field."""
@@ -125,7 +126,26 @@ class Converter:
             # Simple field copy
             writer.line(f"dest.{dst_name} = source.{src_name};")
 
-    def _generate_default(self, writer, field_name, member):
+    def _emit_missing_field_warning(self, field_name, src_dtv, has_default):
+        """Emit a warning when a source field is missing during conversion (FR-13)."""
+        if self.warning_module is None:
+            return
+        # Check if there's a configured severity for this field
+        fw = self.data_type.field_warnings.get(field_name, {})
+        severity = fw.get('severity', 0 if has_default else 1)
+        note = fw.get('note', '')
+        if has_default:
+            msg = (f"Field '{field_name}' missing in {self.data_type.name} "
+                   f"V{src_dtv.version}; default applied")
+        else:
+            msg = (f"Field '{field_name}' missing in {self.data_type.name} "
+                   f"V{src_dtv.version}; zero-initialized")
+        if note:
+            msg += f" ({note})"
+        self.warning_module.add(msg, severity=severity,
+                                context=f"{self.data_type.name}/V{src_dtv.version}")
+
+    def _generate_default(self, writer, field_name, member, src_dtv=None):
         """Generate default value assignment."""
         # Look up default from flat dotted keys
         default_val = self._find_default(field_name)
@@ -134,8 +154,12 @@ class Converter:
                 writer.line(f"// Default for struct field {field_name} (zero-initialized by memset)")
             else:
                 writer.line(f"dest.{field_name} = {default_val};")
+            if src_dtv is not None:
+                self._emit_missing_field_warning(field_name, src_dtv, has_default=True)
         else:
             writer.line(f"// Field '{field_name}' not in source, zero-initialized by memset")
+            if src_dtv is not None:
+                self._emit_missing_field_warning(field_name, src_dtv, has_default=False)
 
     def _find_default(self, field_name):
         """Find default value from config defaults dict."""
