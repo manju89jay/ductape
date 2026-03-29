@@ -14,6 +14,7 @@ import ductape.frontends.protobuf  # noqa: F401
 import ductape.frontends.json_schema  # noqa: F401
 import ductape.emitters.cpp_emitter  # noqa: F401
 import ductape.emitters.shared_lib_emitter  # noqa: F401
+import ductape.emitters.python_emitter  # noqa: F401
 
 
 def run_generate(config_path, output_dir, use_color=True):
@@ -45,6 +46,9 @@ def run_generate(config_path, output_dir, use_color=True):
             emitter.emit_converter(dt, config, output_dir, warning_module=warning_module)
         emitter.emit_factory(registry.data_types, output_dir)
         emitter.emit_platform_types(config, output_dir)
+        # Emit version negotiation header if the emitter supports it
+        if hasattr(emitter, 'emit_version_negotiation'):
+            emitter.emit_version_negotiation(registry.data_types, output_dir)
     else:
         # Fallback to built-in generation
         for type_name, dt in registry.data_types.items():

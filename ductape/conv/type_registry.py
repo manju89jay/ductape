@@ -35,6 +35,7 @@ class TypeRegistry:
                 defaults=type_cfg.get('defaults', {}),
                 renames=type_cfg.get('renames', {}),
                 field_warnings=type_cfg.get('field_warnings', {}),
+                enum_mappings=type_cfg.get('enum_mappings', {}),
                 generate_reverse=type_cfg.get('generate_reverse', False),
             )
             self.data_types[type_name] = dt
