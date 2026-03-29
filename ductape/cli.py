@@ -31,6 +31,13 @@ def main():
     diff_parser.add_argument("--current", required=True,
                              help="Path to current version_overview.json")
 
+    struct_diff_parser = subparsers.add_parser("struct-diff",
+                                                help="Structural diff between generated outputs")
+    struct_diff_parser.add_argument("--dir1", required=True,
+                                    help="First generated output directory")
+    struct_diff_parser.add_argument("--dir2", required=True,
+                                    help="Second generated output directory")
+
     args = parser.parse_args()
 
     use_color = not args.no_color
@@ -56,3 +63,6 @@ def main():
         from ductape.version_diff import generate_diff_report, format_diff_report
         diff = generate_diff_report(args.previous, args.current)
         print(format_diff_report(diff))
+    elif args.command == "struct-diff":
+        from ductape.struct_diff import run_struct_diff
+        run_struct_diff(args.dir1, args.dir2)
