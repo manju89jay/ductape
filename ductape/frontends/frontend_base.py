@@ -7,6 +7,7 @@ the core engine or any existing frontend.
 
 from abc import ABC, abstractmethod
 from ductape.conv.typecontainer import TypeContainer
+from ductape.exceptions import ParseError
 
 
 class ParserFrontend(ABC):
@@ -61,7 +62,7 @@ def get_frontend(format_id):
     """
     if format_id not in _FRONTEND_REGISTRY:
         available = ', '.join(sorted(_FRONTEND_REGISTRY.keys()))
-        raise ValueError(
+        raise ParseError(
             f"Unknown parser frontend '{format_id}'. "
             f"Available: {available}"
         )

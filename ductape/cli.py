@@ -1,19 +1,26 @@
+from __future__ import annotations
+
 import argparse
+import logging
 import sys
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         prog="ductape",
         description="Universal Schema Adapter Generator",
     )
     parser.add_argument("--no-color", action="store_true", default=False,
                         help="Disable coloured terminal output (NFR-05)")
+    parser.add_argument("-v", "--verbose", action="store_true", default=False,
+                        help="Enable verbose logging output")
     subparsers = parser.add_subparsers(dest="command")
 
     gen_parser = subparsers.add_parser("generate", help="Generate adapter code")
     gen_parser.add_argument("--config", required=True, help="Path to config.yaml")
     gen_parser.add_argument("--output", required=True, help="Output directory")
+    gen_parser.add_argument("--dry-run", action="store_true", default=False,
+                            help="Show what would be generated without writing files")
 
     verify_parser = subparsers.add_parser("verify", help="Verify against golden files")
     verify_parser.add_argument("--config", required=True, help="Path to config.yaml")
@@ -40,6 +47,11 @@ def main():
 
     args = parser.parse_args()
 
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.WARNING,
+        format="%(name)s: %(message)s",
+    )
+
     use_color = not args.no_color
 
     if args.command is None:
@@ -48,7 +60,8 @@ def main():
 
     if args.command == "generate":
         from ductape.codegen import run_generate
-        run_generate(args.config, args.output, use_color=use_color)
+        run_generate(args.config, args.output, use_color=use_color,
+                     dry_run=args.dry_run)
     elif args.command == "verify":
         from ductape.codegen import run_verify
         run_verify(args.config, args.expected, use_color=use_color)

@@ -1,9 +1,6 @@
 """Navigates into versioned struct members."""
 
-
-class AmbiguousMemberError(Exception):
-    """Raised when fuzzy lookup matches multiple candidates."""
-    pass
+from ductape.exceptions import AmbiguousMemberError
 
 
 class StructPointer:

@@ -1,7 +1,8 @@
 """One logical type across all its versions."""
+from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+
 from ductape.conv.data_type_version import DataTypeVersion
 from ductape.conv.typecontainer import CType, CTypeMember
 
@@ -16,15 +17,15 @@ class DataType:
     """A logical data type with all its versions and a generic superset."""
     name: str
     version_macro: str
-    versions: dict = field(default_factory=dict)  # version_num -> DataTypeVersion
-    defaults: dict = field(default_factory=dict)
-    renames: dict = field(default_factory=dict)  # old_name -> new_name
-    field_warnings: dict = field(default_factory=dict)
-    enum_mappings: dict = field(default_factory=dict)  # field_name -> {old_val: new_val}
+    versions: dict[int, DataTypeVersion] = field(default_factory=dict)  # version_num -> DataTypeVersion
+    defaults: dict[str, str] = field(default_factory=dict)
+    renames: dict[str, str] = field(default_factory=dict)  # old_name -> new_name
+    field_warnings: dict[str, dict[str, object]] = field(default_factory=dict)
+    enum_mappings: dict[str, dict[str, str]] = field(default_factory=dict)  # field_name -> {old_val: new_val}
     generate_reverse: bool = False
-    generic: Optional[DataTypeVersion] = None
+    generic: DataTypeVersion | None = None
 
-    def add_version(self, version_num, ctype):
+    def add_version(self, version_num: int, ctype: CType) -> None:
         dtv = DataTypeVersion(
             type_name=self.name,
             version=version_num,
@@ -32,7 +33,7 @@ class DataType:
         )
         self.versions[version_num] = dtv
 
-    def build_generic(self, sentinel=9999):
+    def build_generic(self, sentinel: int = 9999) -> DataTypeVersion:
         """Build the generic (superset) version from all known versions."""
         all_members = {}  # name -> CTypeMember (keep last seen)
         member_order = []
