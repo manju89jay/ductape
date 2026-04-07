@@ -1,7 +1,8 @@
 """One (type, version) tuple with struct layout."""
+from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+
 from ductape.conv.typecontainer import CType
 
 
@@ -13,6 +14,6 @@ class DataTypeVersion:
     ctype: CType
     namespace: str = ""  # C++ namespace like TypeName_V_1
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.namespace:
             self.namespace = f"{self.type_name}_V_{self.version}"

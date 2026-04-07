@@ -40,8 +40,9 @@ def test_get_frontend_c_header():
 
 
 def test_get_frontend_unknown_raises():
-    """get_frontend raises ValueError for unknown format."""
-    with pytest.raises(ValueError, match="Unknown parser frontend"):
+    """get_frontend raises ParseError for unknown format."""
+    from ductape.exceptions import ParseError
+    with pytest.raises(ParseError, match="Unknown parser frontend"):
         get_frontend("nonexistent_format")
 
 
@@ -117,8 +118,9 @@ def test_get_emitter_cpp():
 
 
 def test_get_emitter_unknown_raises():
-    """get_emitter raises ValueError for unknown emitter."""
-    with pytest.raises(ValueError, match="Unknown code emitter"):
+    """get_emitter raises EmitterError for unknown emitter."""
+    from ductape.exceptions import EmitterError
+    with pytest.raises(EmitterError, match="Unknown code emitter"):
         get_emitter("nonexistent_emitter")
 
 

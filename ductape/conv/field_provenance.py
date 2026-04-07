@@ -1,7 +1,13 @@
 """Cross-version field audit + provenance report."""
+from __future__ import annotations
+
+from typing import Any
+
+from ductape.conv.data_type_version import DataTypeVersion
+from ductape.conv.typecontainer import CTypeMember
 
 
-def generate_provenance(registry):
+def generate_provenance(registry: Any) -> dict[str, dict[str, dict[str, Any]]]:
     """Generate field provenance data for all types."""
     provenance = {}
 
@@ -67,7 +73,7 @@ def generate_provenance(registry):
     return provenance
 
 
-def _find_field_in_version(generic_name, dtv, renames):
+def _find_field_in_version(generic_name: str, dtv: DataTypeVersion, renames: dict[str, str]) -> str | None:
     """Find the source field name in a version."""
     reverse_renames = {v: k for k, v in renames.items()}
 
@@ -86,7 +92,7 @@ def _find_field_in_version(generic_name, dtv, renames):
     return None
 
 
-def _get_member(name, dtv):
+def _get_member(name: str, dtv: DataTypeVersion) -> CTypeMember | None:
     """Get a member by name from a data type version."""
     for m in dtv.ctype.members:
         if m.name == name:

@@ -7,6 +7,8 @@ the core engine or any existing emitter.
 
 from abc import ABC, abstractmethod
 
+from ductape.exceptions import EmitterError
+
 
 class CodeEmitter(ABC):
     """Interface that all code emitters implement."""
@@ -79,7 +81,7 @@ def get_emitter(emitter_id):
     """
     if emitter_id not in _EMITTER_REGISTRY:
         available = ', '.join(sorted(_EMITTER_REGISTRY.keys()))
-        raise ValueError(
+        raise EmitterError(
             f"Unknown code emitter '{emitter_id}'. "
             f"Available: {available}"
         )

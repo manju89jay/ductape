@@ -2,11 +2,7 @@
 
 from ductape.conv.data_type import DataType
 from ductape.conv.interface_version import InterfaceVersion
-
-
-class VersionConflictError(Exception):
-    """Raised when the same version number has structurally different layouts (FR-14)."""
-    pass
+from ductape.exceptions import VersionConflictError
 
 
 class TypeRegistry:
